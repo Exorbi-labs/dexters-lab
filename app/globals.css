@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+:root {
+  /* Dexter's Lab — white + electric indigo */
+  --white: #ffffff;
+  --paper: #fafafb;
+  --accent: #4f46e5;
+  --accent-deep: #4338ca;
+  --accent-soft: #eeedff;
+  --accent-line: #dedcff;
+  --ink: #16171b;
+  --ink-muted: #5f616a;
+  --ink-faint: #75777f;
+  --line: #ececef;
+  --line-strong: #dcdce2;
+}
+
+@theme inline {
+  --color-white: var(--white);
+  --color-paper: var(--paper);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --font-sans: var(--font-jost), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --radius-card: 1.25rem;
+  --radius-tile: 1.75rem;
+}
+
+body {
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.microlabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* leading display face — pronounced soft serif, never thin */
+.display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-variation-settings: "SOFT" 100, "WONK" 0;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+}
+
+.serif-soft {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-variation-settings: "SOFT" 100, "WONK" 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* mono for code snippets */
+.code {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+/* CSS gradient panel (no image assets in this app) */
+.gradient-accent {
+  background:
+    radial-gradient(120% 90% at 12% 8%, rgba(79, 70, 229, 0.16) 0%, transparent 55%),
+    radial-gradient(100% 80% at 88% 20%, rgba(120, 200, 255, 0.16) 0%, transparent 60%),
+    radial-gradient(120% 100% at 55% 100%, rgba(224, 103, 155, 0.1) 0%, transparent 60%),
+    #fbfbfe;
+}
+
+/* soft page entrance for in-app navigation */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: page-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter { animation: none; }
+}
+
+/* right-edge fade cue for horizontally scrollable strips (pair with pr-7) */
+.scroll-fade-r {
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - 28px), transparent);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
