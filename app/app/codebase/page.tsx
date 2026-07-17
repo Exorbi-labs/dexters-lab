@@ -22,7 +22,7 @@ import {
   type Member,
   type Repo,
   type Snippet,
-} from "@/lib/mock-data";
+} from "@/lib/model";
 
 type Tab = "snippets" | "repos";
 
@@ -220,6 +220,37 @@ function RepoComposer({
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [stack, setStack] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const isGithubUrl = /github\.com/i.test(url);
+
+  // pull real metadata off the GitHub API — fields stay hand-editable after
+  async function fetchDetails() {
+    const target = url.trim();
+    if (!target || fetching) return;
+    setFetching(true);
+    setFetchError(null);
+    try {
+      const res = await fetch("/api/github/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: target }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "lookup failed");
+      setUrl(data.url || target);
+      setName(data.name || "");
+      setDescription(data.description || "");
+      setStack((data.stack ?? []).join(", "));
+    } catch (err) {
+      setFetchError(
+        err instanceof Error ? err.message : "couldn't reach GitHub",
+      );
+    } finally {
+      setFetching(false);
+    }
+  }
 
   const submit = () => {
     if (!name.trim() && !url.trim()) return;
@@ -236,6 +267,7 @@ function RepoComposer({
     setUrl("");
     setDescription("");
     setStack("");
+    setFetchError(null);
   };
 
   const field =
@@ -244,20 +276,37 @@ function RepoComposer({
   return (
     <Card className="space-y-3">
       <p className="microlabel text-ink-faint">ADD REPO</p>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Repo name"
-          className={field}
-        />
+      <div className="flex flex-wrap items-center gap-3">
         <input
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            setFetchError(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && isGithubUrl) void fetchDetails();
+          }}
           placeholder="https://github.com/team/repo"
-          className={field}
+          className={`${field} min-w-0 flex-1`}
         />
+        <PillButton
+          variant="ghost"
+          onClick={() => void fetchDetails()}
+          disabled={!isGithubUrl || fetching}
+        >
+          <Icon icon={GithubIcon} size={15} />
+          {fetching ? "Fetching…" : "Fetch details"}
+        </PillButton>
       </div>
+      {fetchError && (
+        <p className="microlabel text-ink-faint">{fetchError.toUpperCase()}</p>
+      )}
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Repo name"
+        className={field}
+      />
       <input
         value={description}
         onChange={(e) => setDescription(e.target.value)}
