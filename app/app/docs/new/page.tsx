@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { uid } from "@/lib/mock-data";
+import { uid } from "@/lib/model";
 import { DocEditor } from "../doc-editor";
 
 export default function NewDocPage() {

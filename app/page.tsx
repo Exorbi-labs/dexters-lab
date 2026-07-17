@@ -10,7 +10,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@/components/icon";
 import { Chip, SectionHeader, PillButton, Avatar } from "@/components/ui";
-import { MEMBER_ACCENTS } from "@/lib/mock-data";
+import { MEMBER_ACCENTS } from "@/lib/model";
 
 /* ---------- decorative mock cards (non-interactive) ---------- */
 

@@ -30,7 +30,7 @@ import {
   type Member,
   initialsFrom,
   memberById,
-} from "@/lib/mock-data";
+} from "@/lib/model";
 import { STORE_KEYS, usePersistentState } from "@/lib/store";
 
 const EMOJI = [

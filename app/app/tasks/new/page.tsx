@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { uid, type TaskStatus, TASK_STATUSES } from "@/lib/mock-data";
+import { uid, type TaskStatus, TASK_STATUSES } from "@/lib/model";
 import { usePersistentState, STORE_KEYS } from "@/lib/store";
 import { TaskEditor } from "../task-editor";
 

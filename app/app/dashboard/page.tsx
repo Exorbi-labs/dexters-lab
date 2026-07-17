@@ -9,7 +9,7 @@ import {
   type Task,
   type Snippet,
   type Repo,
-} from "@/lib/mock-data";
+} from "@/lib/model";
 import { usePersistentState, STORE_KEYS } from "@/lib/store";
 import { PageHeader, Card, Avatar } from "@/components/ui";
 import { Icon, type IconSvgElement } from "@/components/icon";

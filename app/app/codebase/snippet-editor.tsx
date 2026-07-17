@@ -31,7 +31,7 @@ import {
   memberById,
   type Snippet,
   type Member,
-} from "@/lib/mock-data";
+} from "@/lib/model";
 
 const AUTOSAVE_MS = 400;
 

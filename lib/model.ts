@@ -47,6 +47,8 @@ export type Member = {
   accent: string;
   email?: string;
   joinedAt: number;
+  /** Google account id once the member has signed in (phase 1). */
+  googleSub?: string;
 };
 
 /** "Ada Lovelace" -> "AL", "dexter" -> "DE". */

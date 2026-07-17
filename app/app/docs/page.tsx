@@ -16,7 +16,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@/components/icon";
 import { Avatar, Card, PageHeader, PillButton } from "@/components/ui";
-import { type Doc, type Member, memberById } from "@/lib/mock-data";
+import { type Doc, type Member, memberById } from "@/lib/model";
 import { STORE_KEYS, usePersistentState } from "@/lib/store";
 
 const MAX_DEPTH = 2; // top level + two levels of nesting

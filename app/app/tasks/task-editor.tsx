@@ -17,7 +17,7 @@ import {
   TASK_STATUSES,
   PRIORITIES,
   memberById,
-} from "@/lib/mock-data";
+} from "@/lib/model";
 import { usePersistentState, STORE_KEYS } from "@/lib/store";
 import { Avatar } from "@/components/ui";
 import { Icon } from "@/components/icon";
