@@ -25,9 +25,9 @@ export const SERVICES: Record<
   },
   redis: {
     label: "Redis",
-    purpose: "Cache + realtime presence for live collaboration",
+    purpose: "Presence — who's in the lab right now",
     phase: "phase 3",
-    env: ["REDIS_URL"],
+    env: ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"],
   },
   deepseek: {
     label: "DeepSeek API",

@@ -10,8 +10,9 @@ import {
   type Member,
   type Role,
   type Task,
-} from "@/lib/mock-data";
+} from "@/lib/model";
 import { usePersistentState, STORE_KEYS } from "@/lib/store";
+import { usePresence } from "@/lib/presence";
 import {
   PageHeader,
   Card,
@@ -36,6 +37,7 @@ export default function TeamPage() {
   );
   const [tasks] = usePersistentState<Task[]>(STORE_KEYS.tasks, []);
   const [meId] = usePersistentState<string | null>(STORE_KEYS.me, null);
+  const online = usePresence();
 
   const [composing, setComposing] = useState(false);
 
@@ -131,6 +133,7 @@ export default function TeamPage() {
               key={m.id}
               member={m}
               isMe={m.id === meId}
+              isOnline={online.has(m.id)}
               openTasks={openTasksFor(m.id)}
               onUpdate={(patch) => updateMember(m.id, patch)}
               onRemove={() => removeMember(m.id)}
@@ -205,12 +208,14 @@ function Composer({
 function MemberCard({
   member,
   isMe,
+  isOnline,
   openTasks,
   onUpdate,
   onRemove,
 }: {
   member: Member;
   isMe: boolean;
+  isOnline: boolean;
   openTasks: number;
   onUpdate: (patch: Partial<Member>) => void;
   onRemove: () => void;
@@ -284,7 +289,16 @@ function MemberCard({
   return (
     <Card className="group flex flex-col gap-4">
       <div className="flex items-start gap-3">
-        <Avatar initials={member.initials} accent={member.accent} size={44} />
+        <span className="relative inline-flex">
+          <Avatar initials={member.initials} accent={member.accent} size={44} />
+          {isOnline && (
+            <span
+              className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white"
+              style={{ background: "#3FA88F" }}
+              title="online now"
+            />
+          )}
+        </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="truncate font-normal text-ink">{member.name}</p>

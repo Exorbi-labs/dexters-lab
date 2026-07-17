@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconSvgElement } from "@/components/icon";
 import { usePersistentState, STORE_KEYS } from "@/lib/store";
+import { usePresence } from "@/lib/presence";
 import { Avatar } from "@/components/ui";
-import { accentForIndex, initialsFrom, type Member } from "@/lib/mock-data";
+import { accentForIndex, initialsFrom, type Member } from "@/lib/model";
 import {
   DashboardCircleIcon,
   KanbanIcon,
@@ -26,6 +27,7 @@ export const NAV: { href: string; label: string; icon: IconSvgElement }[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const [members] = usePersistentState<Member[]>(STORE_KEYS.members, []);
+  const online = usePresence();
 
   return (
     <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-line bg-paper/60 px-4 py-6 sticky top-0 h-screen">
@@ -88,8 +90,24 @@ export function Sidebar() {
             )}
           </div>
           <p className="mt-2 flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full border border-line-strong" />
-            <span className="microlabel text-ink-faint">local · not synced yet</span>
+            {online.size > 0 ? (
+              <>
+                <span
+                  className="h-1.5 w-1.5 shrink-0 rounded-full"
+                  style={{ background: "#3FA88F" }}
+                />
+                <span className="microlabel text-ink-faint">
+                  {online.size} online now
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full border border-line-strong" />
+                <span className="microlabel text-ink-faint">
+                  synced · team workspace
+                </span>
+              </>
+            )}
           </p>
         </div>
       </div>
