@@ -18,6 +18,7 @@ import {
   AiMagicIcon,
   GoogleIcon,
   GithubIcon,
+  Mail01Icon,
 } from "@hugeicons/core-free-icons";
 
 type Service = {
@@ -38,6 +39,7 @@ const SERVICE_ICON: Record<string, IconSvgElement> = {
   redis: Database02Icon,
   deepseek: AiMagicIcon,
   anthropic: AiMagicIcon,
+  email: Mail01Icon,
   google: GoogleIcon,
   github: GithubIcon,
 };

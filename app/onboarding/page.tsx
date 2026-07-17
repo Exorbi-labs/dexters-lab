@@ -218,8 +218,8 @@ export default function OnboardingPage() {
                     className="w-full resize-none rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-accent"
                   />
                   <p className="microlabel mt-2 text-ink-faint">
-                    TEAMMATES WHO SIGN IN WITH THESE GOOGLE EMAILS LAND IN THIS
-                    WORKSPACE — OR INVITE FROM THE TEAM PAGE ANYTIME
+                    WE&apos;LL EMAIL EACH OF THEM A SIGN-IN LINK — THEY LAND IN
+                    THIS WORKSPACE THE MOMENT THEY SIGN IN WITH GOOGLE
                   </p>
                 </div>
               </div>

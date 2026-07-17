@@ -10,6 +10,7 @@ export type ServiceKey =
   | "redis"
   | "deepseek"
   | "anthropic"
+  | "email"
   | "google"
   | "github";
 
@@ -40,6 +41,12 @@ export const SERVICES: Record<
     purpose: "Quality AI lane — draft docs, explain code",
     phase: "now",
     env: ["ANTHROPIC_API_KEY"],
+  },
+  email: {
+    label: "Email (SMTP)",
+    purpose: "Invite mails — teammates get a sign-in link",
+    phase: "phase 1",
+    env: ["SMTP_URL", "MAIL_FROM"],
   },
   google: {
     label: "Google OAuth",

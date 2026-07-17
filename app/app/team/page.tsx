@@ -59,6 +59,14 @@ export default function TeamPage() {
       joinedAt: Date.now(),
     };
     setMembers((prev) => [...prev, member]);
+    if (member.email) {
+      // email them a sign-in link — no-op when SMTP isn't configured
+      void fetch("/api/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emails: [member.email] }),
+      }).catch(() => {});
+    }
     setComposing(false);
   };
 
@@ -174,6 +182,10 @@ function Composer({
           className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-normal text-ink outline-none placeholder:text-ink-faint focus:border-accent"
         />
       </div>
+      <p className="microlabel text-ink-faint">
+        ADDING AN EMAIL SENDS THEM A SIGN-IN INVITE — THEY CLAIM THIS PROFILE
+        THE MOMENT THEY SIGN IN WITH GOOGLE
+      </p>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <select
           value={role}

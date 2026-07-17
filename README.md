@@ -30,7 +30,7 @@ A dashboard gives the team a live pulse, and settings surface which services are
 - Tailwind CSS v4 (design tokens defined inline in `app/globals.css`)
 - TypeScript, strict mode
 - HugeIcons for iconography
-- Browser localStorage for persistence today, with a clean path to Postgres
+- Postgres (Neon) for persistence, localStorage as the client-side cache, Upstash Redis for presence
 
 ## Getting started
 
@@ -62,10 +62,11 @@ cp .env.example .env.local
 | --- | --- |
 | `DEEPSEEK_API_KEY` | Budget AI lane (draft docs, explain code) |
 | `ANTHROPIC_API_KEY` | Quality AI lane, preferred when both keys are set |
-| `DATABASE_URL` | Postgres, replaces browser storage and syncs the team |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Team sign-in |
-| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Link repositories into the codebase |
-| `REDIS_URL` | Presence and realtime collaboration |
+| `DATABASE_URL` | Postgres — replaces browser storage and syncs the team |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_SECRET` | Google team sign-in |
+| `SMTP_URL`, `MAIL_FROM` | Invite emails with a sign-in link |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Higher rate limits for GitHub repo lookups |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Presence — who's online right now |
 
 Connected services appear live under Settings, Services.
 
@@ -81,11 +82,11 @@ lib/            Data types, persistence layer, and service config
 
 ## Roadmap
 
-- **Now.** Fully usable, client-side, with optional AI assist.
-- **Phase 1.** Postgres plus Google sign-in for a real, synced team workspace.
-- **Phase 2.** GitHub integration to pull repositories into the codebase.
-- **Phase 3.** Presence and realtime collaboration.
+- **Phase 1 — live.** Postgres + Google sign-in: one real, synced team workspace with email invites.
+- **Phase 2 — live.** GitHub linking: paste a repo URL and real metadata fills in.
+- **Phase 3 — live.** Presence: online dots and a live member count via Redis.
+- **Next.** Instant-push collaboration (live cursors), richer doc blocks.
 
 ## Status
 
-Private beta. Data currently lives in the browser, so it is per device until the Phase 1 backend lands.
+Private beta. With the Phase 1 keys set, all workspace data lives in Postgres and is shared by every signed-in member; the browser keeps only a local cache.
