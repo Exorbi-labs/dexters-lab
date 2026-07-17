@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse, after } from "next/server";
-import { sendInviteEmails } from "@/lib/mail";
+import { appOrigin, sendInviteEmails } from "@/lib/mail";
 import {
   serverMode,
   verifyPayload,
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       await upsertItems("members", stubs as unknown as StoredItem[]);
     }
     if (fresh.length > 0) {
-      const origin = request.nextUrl.origin;
+      const origin = appOrigin(request.nextUrl.origin);
       const inviter = member;
       after(() => sendInviteEmails(fresh, inviter, origin)); // mail goes out post-response
     }

@@ -14,6 +14,14 @@ export function mailConfigured(): boolean {
   );
 }
 
+/**
+ * The origin mail links should use — APP_URL when set, so an action taken on
+ * a dev server never mails out a localhost link; else the request's origin.
+ */
+export function appOrigin(requestOrigin: string): string {
+  return process.env.APP_URL?.trim().replace(/\/$/, "") || requestOrigin;
+}
+
 const ACCENT = "#4F46E5";
 const INK = "#16171B";
 const MUTED = "#5F6370";

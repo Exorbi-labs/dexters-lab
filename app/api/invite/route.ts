@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverMode, currentMember } from "@/lib/auth";
-import { mailConfigured, sendInviteEmails } from "@/lib/mail";
+import { appOrigin, mailConfigured, sendInviteEmails } from "@/lib/mail";
 
 /**
  * POST /api/invite { emails } — email teammates a sign-in link.
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   const sent = await sendInviteEmails(
     emails,
     member,
-    request.nextUrl.origin,
+    appOrigin(request.nextUrl.origin),
   );
   return NextResponse.json({ sent, configured: true });
 }

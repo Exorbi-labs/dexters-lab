@@ -11,7 +11,7 @@ import {
   type StoredItem,
 } from "@/lib/db";
 import { deriveNotifications, type EmailJob } from "@/lib/notifications";
-import { sendMail } from "@/lib/mail";
+import { appOrigin, sendMail } from "@/lib/mail";
 import type { Member } from "@/lib/model";
 
 /**
@@ -128,7 +128,7 @@ export async function POST(
         await pruneCollection("notifications", NOTIFICATION_CAP);
       }
       if (emails.length > 0) {
-        const origin = request.nextUrl.origin;
+        const origin = appOrigin(request.nextUrl.origin);
         after(() => sendEmailJobs(emails, origin));
       }
     }
