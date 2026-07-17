@@ -130,6 +130,30 @@ export type Repo = {
   createdAt: number;
 };
 
+/* ---------- Notifications ---------- */
+
+export type NotificationType =
+  | "task_assigned"
+  | "task_done"
+  | "task_created"
+  | "doc_created"
+  | "snippet_added"
+  | "repo_added"
+  | "member_invited"
+  | "member_joined";
+
+export type Notification = {
+  id: string;
+  type: NotificationType;
+  actorId: string | null;
+  /** member this is for — null means the whole team */
+  targetId: string | null;
+  text: string; // rendered once at creation, e.g. 'assigned you "Ship v1"'
+  href: string;
+  createdAt: number;
+  readBy: string[];
+};
+
 export const LANGUAGES = [
   "typescript",
   "javascript",

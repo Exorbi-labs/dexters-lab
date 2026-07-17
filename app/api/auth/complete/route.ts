@@ -21,6 +21,7 @@ import {
   initialsFrom,
   accentForIndex,
   type Member,
+  type Notification,
   type Role,
 } from "@/lib/model";
 
@@ -69,6 +70,17 @@ export async function POST(request: NextRequest) {
         googleSub: pending.sub,
       } satisfies Member;
       await upsertItems("members", [member as unknown as StoredItem]);
+      const joined: Notification = {
+        id: uid(),
+        type: "member_joined",
+        actorId: member.id,
+        targetId: null,
+        text: "joined the lab",
+        href: "/app/team",
+        createdAt: Date.now(),
+        readBy: [member.id],
+      };
+      await upsertItems("notifications", [joined as unknown as StoredItem]);
     }
 
     // invited teammates become claimable stubs — signing in with a matching

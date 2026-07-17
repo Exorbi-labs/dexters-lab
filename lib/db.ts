@@ -110,6 +110,35 @@ export async function deleteItems(
   );
 }
 
+/** Prior versions of specific items — for detecting created vs changed. */
+export async function getItemsByIds(
+  collection: string,
+  ids: string[],
+): Promise<Map<string, StoredItem>> {
+  if (ids.length === 0) return new Map();
+  await ready();
+  const r = await pool().query(
+    "select data from items where collection = $1 and id = any($2)",
+    [collection, ids],
+  );
+  return new Map(
+    r.rows.map((row) => [row.data.id as string, row.data as StoredItem]),
+  );
+}
+
+/** Keep only the newest `keep` items of a collection (by insertion order). */
+export async function pruneCollection(
+  collection: string,
+  keep: number,
+): Promise<void> {
+  await ready();
+  await pool().query(
+    `delete from items where collection = $1 and seq not in
+       (select seq from items where collection = $1 order by seq desc limit $2)`,
+    [collection, keep],
+  );
+}
+
 /* ---------- members ---------- */
 
 export async function getMember(id: string): Promise<Member | null> {

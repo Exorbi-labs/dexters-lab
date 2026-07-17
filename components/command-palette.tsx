@@ -8,6 +8,7 @@ import {
   DashboardCircleIcon,
   KanbanIcon,
   Notebook01Icon,
+  Notification02Icon,
   Search01Icon,
   Settings01Icon,
   SourceCodeIcon,
@@ -32,6 +33,7 @@ const ITEMS: Item[] = [
   { id: "tasks", label: "Tasks", hint: "go to", href: "/app/tasks", icon: KanbanIcon, keywords: "board todo assignments sprint" },
   { id: "codebase", label: "Codebase", hint: "go to", href: "/app/codebase", icon: SourceCodeIcon, keywords: "snippets repos code library" },
   { id: "team", label: "Team", hint: "go to", href: "/app/team", icon: UserGroupIcon, keywords: "members people roles directory" },
+  { id: "notifications", label: "Notifications", hint: "go to", href: "/app/notifications", icon: Notification02Icon, keywords: "activity updates alerts bell unread" },
   { id: "settings", label: "Settings", hint: "go to", href: "/app/settings", icon: Settings01Icon, keywords: "workspace services integrations" },
 ];
 

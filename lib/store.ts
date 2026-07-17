@@ -24,6 +24,7 @@ export const STORE_KEYS = {
   tasks: "dex:tasks",
   snippets: "dex:snippets",
   repos: "dex:repos",
+  notifications: "dex:notifications",
   me: "dex:me", // current member id (string)
   settings: "dex:settings",
 } as const;
@@ -37,6 +38,7 @@ const COLLECTION: Record<string, string> = {
   [STORE_KEYS.tasks]: "tasks",
   [STORE_KEYS.snippets]: "snippets",
   [STORE_KEYS.repos]: "repos",
+  [STORE_KEYS.notifications]: "notifications",
 };
 
 function writeCache(key: string, json: string) {

@@ -6,11 +6,17 @@ import { Icon, type IconSvgElement } from "@/components/icon";
 import { usePersistentState, STORE_KEYS } from "@/lib/store";
 import { usePresence } from "@/lib/presence";
 import { Avatar } from "@/components/ui";
-import { accentForIndex, initialsFrom, type Member } from "@/lib/model";
+import {
+  accentForIndex,
+  initialsFrom,
+  type Member,
+  type Notification,
+} from "@/lib/model";
 import {
   DashboardCircleIcon,
   KanbanIcon,
   Notebook01Icon,
+  Notification02Icon,
   Settings01Icon,
   SourceCodeIcon,
   UserGroupIcon,
@@ -22,12 +28,30 @@ export const NAV: { href: string; label: string; icon: IconSvgElement }[] = [
   { href: "/app/tasks", label: "Tasks", icon: KanbanIcon },
   { href: "/app/codebase", label: "Codebase", icon: SourceCodeIcon },
   { href: "/app/team", label: "Team", icon: UserGroupIcon },
+  { href: "/app/notifications", label: "Notifications", icon: Notification02Icon },
 ];
+
+/** Unread notifications for the signed-in member. */
+export function useUnreadCount(): number {
+  const [notifications] = usePersistentState<Notification[]>(
+    STORE_KEYS.notifications,
+    [],
+  );
+  const [meId] = usePersistentState<string | null>(STORE_KEYS.me, null);
+  if (!meId) return 0;
+  return notifications.filter(
+    (n) =>
+      (n.targetId === null || n.targetId === meId) &&
+      n.actorId !== meId &&
+      !n.readBy.includes(meId),
+  ).length;
+}
 
 export function Sidebar() {
   const pathname = usePathname();
   const [members] = usePersistentState<Member[]>(STORE_KEYS.members, []);
   const online = usePresence();
+  const unread = useUnreadCount();
 
   return (
     <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-line bg-paper/60 px-4 py-6 sticky top-0 h-screen">
@@ -50,7 +74,13 @@ export function Sidebar() {
             >
               <Icon icon={item.icon} size={17} className={active ? "text-accent" : "text-ink-faint"} />
               {item.label}
-              {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent" />}
+              {item.href === "/app/notifications" && unread > 0 ? (
+                <span className="microlabel ml-auto rounded-full bg-accent px-1.5 py-0.5 text-white">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              ) : (
+                active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent" />
+              )}
             </Link>
           );
         })}
