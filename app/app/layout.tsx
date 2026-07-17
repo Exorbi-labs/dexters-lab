@@ -1,8 +1,17 @@
+import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 import { CommandPalette } from "@/components/command-palette";
+import { serverMode, currentMember } from "@/lib/auth";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Phase 1 live → the workspace is behind real sign-in
+  if (serverMode() && !(await currentMember())) redirect("/login");
+
   return (
     <div className="flex min-h-screen flex-col bg-paper/40 md:flex-row">
       <Sidebar />

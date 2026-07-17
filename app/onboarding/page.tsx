@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   TestTube01Icon,
@@ -9,31 +9,56 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@/components/icon";
 import { Card, PillButton } from "@/components/ui";
-import {
-  uid,
-  ROLES,
-  initialsFrom,
-  accentForIndex,
-  type Role,
-  type Member,
-} from "@/lib/mock-data";
-import { usePersistentState, STORE_KEYS } from "@/lib/store";
+import { ROLES, type Role } from "@/lib/model";
+import { clearCache } from "@/lib/store";
 
 const TOTAL = 2;
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [members, setMembers, membersLoaded] = usePersistentState<Member[]>(
-    STORE_KEYS.members,
-    [],
-  );
-  const [, setMe] = usePersistentState<string>(STORE_KEYS.me, "");
 
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("engineer");
   const [invites, setInvites] = useState("");
+
+  // a Google sign-in must be pending completion to be here
+  const [ready, setReady] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const me = await fetch("/api/me", { cache: "no-store" }).then((r) =>
+          r.json(),
+        );
+        if (!active) return;
+        if (me?.member) {
+          router.replace("/app/dashboard"); // already a member
+          return;
+        }
+        const data = await fetch("/api/auth/pending", {
+          cache: "no-store",
+        }).then((r) => r.json());
+        if (!active) return;
+        if (!data?.pending) {
+          router.replace("/login"); // no Google sign-in waiting — start over
+          return;
+        }
+        setReady(true);
+        setName((current) => current || data.pending.name || "");
+        setEmail(data.pending.email || "");
+      } catch {
+        if (active) router.replace("/login");
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   const nameOk = name.trim().length > 0;
 
@@ -43,30 +68,30 @@ export default function OnboardingPage() {
       setStep(2);
       return;
     }
-    finish();
+    void finish();
   }
 
-  function finish() {
-    if (!membersLoaded) return; // never write before hydration
-
-    if (members.length === 0) {
-      // create member #1 — the current user
-      const member: Member = {
-        id: uid(),
-        name: name.trim(),
-        initials: initialsFrom(name),
-        role,
-        accent: accentForIndex(0),
-        email: email.trim() || undefined,
-        joinedAt: Date.now(),
-      };
-      setMembers([member]);
-      setMe(member.id);
-    } else {
-      // already onboarded (e.g. back-nav): just point `me` at the first member
-      setMe(members[0].id);
+  async function finish() {
+    if (!ready || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          role,
+          invites: invites.split(/[\s,;]+/).filter((e) => e.includes("@")),
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      clearCache(); // this browser's cache starts fresh — the team workspace is authoritative
+      router.push("/app/dashboard");
+    } catch {
+      setError("Couldn't finish setup — try again.");
+      setSubmitting(false);
     }
-    router.push("/app/dashboard");
   }
 
   return (
@@ -121,14 +146,15 @@ export default function OnboardingPage() {
 
                 <div>
                   <label className="microlabel mb-2 block text-ink-faint">
-                    EMAIL (OPTIONAL)
+                    EMAIL — FROM YOUR GOOGLE ACCOUNT
                   </label>
                   <input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@team.com"
                     type="email"
-                    className="w-full rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-accent"
+                    disabled
+                    className="w-full rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-accent disabled:bg-paper disabled:text-ink-muted"
                   />
                 </div>
 
@@ -192,8 +218,8 @@ export default function OnboardingPage() {
                     className="w-full resize-none rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-accent"
                   />
                   <p className="microlabel mt-2 text-ink-faint">
-                    WE&apos;LL WIRE REAL INVITES IN PHASE 1 — INVITE THE REST OF
-                    YOUR TEAM FROM THE TEAM PAGE ANYTIME
+                    TEAMMATES WHO SIGN IN WITH THESE GOOGLE EMAILS LAND IN THIS
+                    WORKSPACE — OR INVITE FROM THE TEAM PAGE ANYTIME
                   </p>
                 </div>
               </div>
@@ -202,6 +228,9 @@ export default function OnboardingPage() {
         </Card>
 
         {/* Footer nav */}
+        {error && (
+          <p className="mt-6 text-center text-sm text-ink-muted">{error}</p>
+        )}
         <div className="mt-8 flex items-center justify-between">
           {step === 2 ? (
             <PillButton variant="ghost" onClick={() => setStep(1)}>
@@ -213,9 +242,13 @@ export default function OnboardingPage() {
           <PillButton
             variant="ink"
             onClick={next}
-            disabled={step === 1 && !nameOk}
+            disabled={(step === 1 && !nameOk) || submitting}
           >
-            {step === 1 ? "Continue" : "Enter the lab"}
+            {step === 1
+              ? "Continue"
+              : submitting
+                ? "Setting up…"
+                : "Enter the lab"}
             <Icon icon={ArrowRight02Icon} size={16} className="text-white" />
           </PillButton>
         </div>

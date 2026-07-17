@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loading03Icon } from "@hugeicons/core-free-icons";
 import { Icon } from "@/components/icon";
@@ -18,14 +18,40 @@ function GoogleGlyph({ size = 18 }: { size?: number }) {
   );
 }
 
+const AUTH_ERRORS: Record<string, string> = {
+  auth_failed: "Google sign-in didn't complete — try again.",
+  db_failed: "Signed in, but the database couldn't be reached.",
+  unconfigured: "Google sign-in isn't configured yet.",
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [signingIn, setSigningIn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("error");
+    if (code) setError(AUTH_ERRORS[code] ?? "Sign-in failed — try again.");
+
+    let active = true;
+    fetch("/api/me", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (active && data?.member) router.replace("/app/dashboard");
+      })
+      .catch(() => {
+        // signed out — stay on the login screen
+      });
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   function handleGoogle() {
     setSigningIn(true);
-    // mocked auth — brief signing-in state, then straight to onboarding
-    setTimeout(() => router.push("/onboarding"), 800);
+    setError(null);
+    // real Google OAuth — round-trips through /api/auth/callback
+    window.location.href = "/api/auth/google";
   }
 
   return (
@@ -64,6 +90,9 @@ export default function LoginPage() {
                 </>
               )}
             </button>
+            {error && (
+              <p className="mt-4 text-sm text-ink-muted">{error}</p>
+            )}
             <p className="microlabel mt-4 text-ink-faint">
               YOUR TEAM&apos;S PRIVATE WORKSPACE
             </p>

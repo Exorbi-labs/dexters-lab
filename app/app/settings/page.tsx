@@ -1,9 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { memberById, roleLabel, type Member } from "@/lib/mock-data";
-import { usePersistentState, STORE_KEYS } from "@/lib/store";
-import { PageHeader, Card, Chip, Avatar, MockNote } from "@/components/ui";
+import { memberById, roleLabel, type Member } from "@/lib/model";
+import { usePersistentState, clearCache, STORE_KEYS } from "@/lib/store";
+import {
+  PageHeader,
+  Card,
+  Chip,
+  Avatar,
+  MockNote,
+  PillButton,
+} from "@/components/ui";
 import { Icon, type IconSvgElement } from "@/components/icon";
 import {
   Database01Icon,
@@ -44,6 +51,30 @@ export default function SettingsPage() {
   const [statusState, setStatusState] = useState<"loading" | "ok" | "error">(
     "loading",
   );
+  const [serverAuth, setServerAuth] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    fetch("/api/me", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (live) setServerAuth(data?.mode === "server" && Boolean(data.member));
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  async function signOut() {
+    try {
+      await fetch("/api/auth/signout", { method: "POST" });
+    } catch {
+      // cookie clear is what matters — proceed either way
+    }
+    clearCache();
+    window.location.href = "/login";
+  }
 
   useEffect(() => {
     let active = true;
@@ -87,13 +118,13 @@ export default function SettingsPage() {
           {me && (
             <>
               <div className="h-px bg-line" />
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <Avatar
                   initials={me.initials}
                   accent={me.accent}
                   size={40}
                 />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate font-normal text-ink">{me.name}</p>
                     <Chip tone="accent">you</Chip>
@@ -103,6 +134,11 @@ export default function SettingsPage() {
                     {me.email ? ` · ${me.email}` : ""}
                   </p>
                 </div>
+                {serverAuth && (
+                  <PillButton variant="ghost" onClick={signOut}>
+                    Sign out
+                  </PillButton>
+                )}
               </div>
             </>
           )}
@@ -197,8 +233,9 @@ export default function SettingsPage() {
       </section>
 
       <MockNote>
-        stored locally in this browser for now — cloud sync + team sign-in
-        arrive with phase 1
+        {serverAuth
+          ? "synced to postgres — the whole team sees this workspace"
+          : "stored locally in this browser for now — cloud sync + team sign-in arrive with phase 1"}
       </MockNote>
     </div>
   );
